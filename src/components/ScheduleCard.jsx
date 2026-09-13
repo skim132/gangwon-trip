@@ -1,5 +1,5 @@
-import { COURSE_STEPS, PACKING_ITEMS, STATUSES } from './tripData'
-import { getDelayNote, nowTimeValue } from './useTripState'
+import { STATUSES } from '../utils/constants'
+import { getDelayNote, nowTimeValue } from '../utils/time'
 
 function TimeField({ label, value, onChange }) {
   return (
@@ -25,10 +25,14 @@ export default function ScheduleCard({
   onDinnerChoice,
   onTogglePacking,
   onToggleCourse,
+  headerActions,
+  children,
 }) {
   const compareTime = item.timeKind === 'depart' ? itemState.leftAt : itemState.arrivedAt
   const delayNote =
     itemState.status === 'skipped' ? '' : getDelayNote(item.scheduledTime, compareTime)
+  const courseSteps = item.courseSteps ?? []
+  const packingItems = item.packingItems ?? []
 
   function handleStatus(status) {
     onUpdate({
@@ -49,11 +53,13 @@ export default function ScheduleCard({
     <article className={`card${item.highlight ? ' card-highlight' : ''}`}>
       <div className="card-top">
         <div>
-          <p className="card-kicker">{item.highlight ? '오늘의 핵심' : '일정'}</p>
+          <p className="card-kicker">{item.kicker ?? (item.highlight ? '오늘의 핵심' : '일정')}</p>
           <h2>{item.place}</h2>
         </div>
         {item.nightBadge ? <span className="night-badge">{item.nightBadge}</span> : null}
       </div>
+
+      {headerActions}
 
       <dl className="meta">
         <div>
@@ -72,11 +78,13 @@ export default function ScheduleCard({
         {item.travelMemo}
       </p>
 
+      {children}
+
       {item.showCourse ? (
         <div className="subblock">
           <p className="subblock-title">선자령 코스</p>
           <ul className="check-list">
-            {COURSE_STEPS.map((step) => (
+            {courseSteps.map((step) => (
               <li key={step.id}>
                 <label>
                   <input
@@ -96,7 +104,7 @@ export default function ScheduleCard({
         <div className="subblock">
           <p className="subblock-title">준비물</p>
           <ul className="check-list packing-list">
-            {PACKING_ITEMS.map((pack) => (
+            {packingItems.map((pack) => (
               <li key={pack.id}>
                 <label>
                   <input
