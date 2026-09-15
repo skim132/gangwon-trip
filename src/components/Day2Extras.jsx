@@ -126,11 +126,25 @@ export function Day2CardBody({ item, dayState, onSetField, onApplyAltOrder }) {
           </button>
         </div>
       ) : null}
+
+      {item.tripComplete ? (
+        <div className="complete-block">
+          <button
+            type="button"
+            className={`choice-button${dayState.tripComplete ? ' selected-b' : ''}`}
+            onClick={() => onSetField({ tripComplete: true })}
+          >
+            <strong>2박3일 여행 완료</strong>
+            <span>기록은 그대로 두고 여행 마침만 표시합니다</span>
+          </button>
+          {dayState.tripComplete ? <p className="complete-message">2박3일 여행을 마쳤습니다.</p> : null}
+        </div>
+      ) : null}
     </div>
   )
 }
 
-export function Day2OrderPreview({ itemOrder, items }) {
+export function Day2OrderPreview({ dayId = 'day2', itemOrder, items }) {
   const visible = itemOrder.filter((id) => items[id]?.status !== 'skipped')
 
   return (
@@ -139,7 +153,7 @@ export function Day2OrderPreview({ itemOrder, items }) {
       <ol className="order-flow">
         {visible.map((id, index) => (
           <li key={id}>
-            <span>{getShortName('day2', id)}</span>
+            <span>{getShortName(dayId, id)}</span>
             {index < visible.length - 1 ? <span className="order-flow-arrow">↓</span> : null}
           </li>
         ))}
@@ -148,7 +162,7 @@ export function Day2OrderPreview({ itemOrder, items }) {
   )
 }
 
-export function Day2EditBar({ editing, onToggle, onReset }) {
+export function Day2EditBar({ editing, onToggle, onReset, resetLabel = '추천 일정으로 초기화' }) {
   return (
     <div className="edit-bar">
       <button
@@ -164,22 +178,25 @@ export function Day2EditBar({ editing, onToggle, onReset }) {
         </span>
       </button>
       <button type="button" className="text-action" onClick={onReset}>
-        추천 일정으로 초기화
+        {resetLabel}
       </button>
     </div>
   )
 }
 
-export function Day2TimeHint() {
+export function Day2TimeHint({
+  hints = timeHints,
+  copy = '시간에 쫓기지 말고 현장에서 자유롭게 조절하세요.',
+}) {
   return (
     <section className="time-hint">
       <h2 className="section-title">시간이 부족하면</h2>
       <ol className="hint-list">
-        {timeHints.map((hint) => (
+        {hints.map((hint) => (
           <li key={hint}>{hint}</li>
         ))}
       </ol>
-      <p className="hint-copy">시간에 쫓기지 말고 현장에서 자유롭게 조절하세요.</p>
+      <p className="hint-copy">{copy}</p>
     </section>
   )
 }

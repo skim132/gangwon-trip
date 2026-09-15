@@ -1,9 +1,11 @@
 import * as day1 from './day1'
 import * as day2 from './day2'
+import * as day3 from './day3'
 
 const dayModules = {
   day1,
   day2,
+  day3,
 }
 
 export function getDayModule(dayId) {
@@ -24,17 +26,25 @@ export function getRecommendedOrder(dayId) {
 
 export function getDay(dayId) {
   const mod = getDayModule(dayId)
+  const fixedEndId = getFixedId(mod, 'end')
+  const fixedBeforeEndIds = getFixedIds(mod, 'beforeEnd')
+
   return {
     ...mod.meta,
     itemOrder: [...mod.recommendedOrder],
     recommendedOrder: [...mod.recommendedOrder],
     movableIds: getMovableIds(mod),
     fixedStartId: getFixedId(mod, 'start'),
-    fixedEndId: getFixedId(mod, 'end'),
+    fixedEndId,
+    fixedBeforeEndIds,
+    fixedTailIds: [...fixedBeforeEndIds, fixedEndId].filter(Boolean),
+    notice: mod.notice,
+    timeHints: mod.timeHints,
+    timeHintCopy: mod.timeHintCopy,
   }
 }
 
-export const DAYS = [getDay('day1'), getDay('day2')]
+export const DAYS = [getDay('day1'), getDay('day2'), getDay('day3')]
 
 export function getMovableIds(mod) {
   return mod.recommendedOrder.filter((id) => {
@@ -44,7 +54,14 @@ export function getMovableIds(mod) {
 }
 
 export function getFixedId(mod, position) {
-  return mod.items.find((item) => item.fixedPosition === position)?.id ?? null
+  return getFixedIds(mod, position)[0] ?? null
+}
+
+export function getFixedIds(mod, position) {
+  return mod.recommendedOrder.filter((id) => {
+    const item = mod.items.find((entry) => entry.id === id)
+    return item?.fixedPosition === position
+  })
 }
 
 export function getShortName(dayId, id) {

@@ -53,21 +53,21 @@ button {
 
 .day-tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
   margin: 0 0 8px;
 }
 
 .day-tab {
   min-height: 48px;
-  padding: 10px 8px;
+  padding: 10px 4px;
   border: 1.5px solid var(--blue);
   border-radius: 14px;
   background: #ffffff;
   color: var(--blue-deep);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   white-space: nowrap;
 }
 
@@ -113,6 +113,15 @@ button {
   line-height: 1.35;
   font-weight: 800;
   color: var(--green-deep);
+}
+
+.hero-subtitle {
+  margin: 0 0 10px;
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--text-soft);
+  word-break: keep-all;
 }
 
 .hero-date {
@@ -540,17 +549,27 @@ textarea:focus,
 
 .notice-block,
 .order-preview,
-.time-hint {
+.time-hint,
+.day-notice {
   margin-bottom: 20px;
 }
 
 .notice-block,
 .order-flow,
-.time-hint {
+.time-hint,
+.day-notice {
   padding: 16px;
   border: 1.5px solid var(--border);
   border-radius: 20px;
   background: #ffffff;
+}
+
+.day-notice p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-soft);
+  word-break: keep-all;
 }
 
 .notice-text,
@@ -622,6 +641,17 @@ textarea:focus,
   margin-bottom: 0;
 }
 
+.complete-block {
+  margin-bottom: 16px;
+}
+
+.complete-message {
+  margin: 10px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green-deep);
+}
+
 .mini-button:focus-visible,
 .text-action:focus-visible,
 .drag-handle:focus-visible,
@@ -634,6 +664,11 @@ textarea:focus,
 @media (min-width: 430px) {
   .hero h1 {
     font-size: 34px;
+  }
+
+  .day-tab {
+    font-size: 15px;
+    padding: 10px 8px;
   }
 
   .card {

@@ -10,6 +10,8 @@ import {
 
 const VALID_STATUSES = new Set(STATUSES.map((status) => status.id))
 
+const VALID_DAYS = new Set(['day1', 'day2', 'day3'])
+
 function asText(value) {
   return typeof value === 'string' ? value : ''
 }
@@ -63,16 +65,32 @@ function normalizeDay2State(saved) {
   }
 }
 
+function normalizeDay3State(saved) {
+  const defaults = createDayUserState('day3')
+  if (!saved || typeof saved !== 'object') return defaults
+
+  return {
+    ...defaults,
+    items: normalizeItems(saved.items, defaults),
+    packing: { ...defaults.packing, ...(saved.packing ?? {}) },
+    course: { ...defaults.course, ...(saved.course ?? {}) },
+    itemOrder: normalizeDayOrder('day3', saved.itemOrder),
+    lunchChoice: asText(saved.lunchChoice),
+    tripComplete: Boolean(saved.tripComplete),
+  }
+}
+
 function loadUserState() {
   try {
     const current = localStorage.getItem(STORAGE_KEY)
     if (current) {
       const parsed = JSON.parse(current)
       return {
-        selectedDay: parsed.selectedDay === 'day2' ? 'day2' : 'day1',
+        selectedDay: VALID_DAYS.has(parsed.selectedDay) ? parsed.selectedDay : 'day1',
         days: {
           day1: normalizeDay1State(parsed.days?.day1),
           day2: normalizeDay2State(parsed.days?.day2),
+          day3: normalizeDay3State(parsed.days?.day3),
         },
       }
     }
@@ -84,6 +102,7 @@ function loadUserState() {
         days: {
           day1: normalizeDay1State(JSON.parse(legacy)),
           day2: createDayUserState('day2'),
+          day3: createDayUserState('day3'),
         },
       }
     }
@@ -134,7 +153,7 @@ export function useTripState() {
   function setSelectedDay(dayId) {
     setState((prev) => ({
       ...prev,
-      selectedDay: dayId === 'day2' ? 'day2' : 'day1',
+      selectedDay: VALID_DAYS.has(dayId) ? dayId : 'day1',
     }))
   }
 
@@ -182,15 +201,27 @@ export function useTripState() {
   }
 
   function setDay2Field(patch) {
-    setState((prev) => updateDay(prev, 'day2', patch))
+    setState((prev) => {
+      const dayId = prev.selectedDay
+      if (dayId === 'day1') return prev
+      return updateDay(prev, dayId, patch)
+    })
   }
 
   function setDay2ItemOrder(order) {
-    setDay2Field({ itemOrder: normalizeDayOrder('day2', order) })
+    setState((prev) => {
+      const dayId = prev.selectedDay
+      if (dayId === 'day1') return prev
+      return updateDay(prev, dayId, { itemOrder: normalizeDayOrder(dayId, order) })
+    })
   }
 
   function resetDay2Order() {
-    setDay2Field({ itemOrder: getRecommendedOrder('day2') })
+    setState((prev) => {
+      const dayId = prev.selectedDay
+      if (dayId === 'day1') return prev
+      return updateDay(prev, dayId, { itemOrder: getRecommendedOrder(dayId) })
+    })
   }
 
   function applyBadaAltOrder() {
@@ -213,8 +244,10 @@ export function useTripState() {
 
   function skipDay2Item(id) {
     setState((prev) => {
-      const current = prev.days.day2
-      return updateDay(prev, 'day2', {
+      const dayId = prev.selectedDay
+      if (dayId === 'day1') return prev
+      const current = prev.days[dayId]
+      return updateDay(prev, dayId, {
         items: {
           ...current.items,
           [id]: {
@@ -229,7 +262,9 @@ export function useTripState() {
 
   function restoreDay2Item(id) {
     setState((prev) => {
-      const current = prev.days.day2
+      const dayId = prev.selectedDay
+      if (dayId === 'day1') return prev
+      const current = prev.days[dayId]
       const patch = {
         items: {
           ...current.items,
@@ -245,7 +280,7 @@ export function useTripState() {
         patch.badaClosed = false
       }
 
-      return updateDay(prev, 'day2', patch)
+      return updateDay(prev, dayId, patch)
     })
   }
 

@@ -53,6 +53,7 @@ export default function Day2Timeline({
   movableIds,
   fixedStartId,
   fixedEndId,
+  fixedTailIds,
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -63,6 +64,7 @@ export default function Day2Timeline({
     }),
   )
   const movable = itemOrder.filter((id) => movableIds.includes(id))
+  const tailIds = fixedTailIds?.length ? fixedTailIds : [fixedEndId].filter(Boolean)
 
   function handleDragEnd(event) {
     const { active, over } = event
@@ -73,7 +75,7 @@ export default function Day2Timeline({
     const newIndex = movable.indexOf(over.id)
     if (oldIndex < 0 || newIndex < 0) return
 
-    onReorder([fixedStartId, ...arrayMove(movable, oldIndex, newIndex), fixedEndId])
+    onReorder([fixedStartId, ...arrayMove(movable, oldIndex, newIndex), ...tailIds])
   }
 
   function handleMove(id, direction) {
@@ -81,7 +83,7 @@ export default function Day2Timeline({
     const newIndex = oldIndex + direction
     if (oldIndex < 0 || newIndex < 0 || newIndex >= movable.length) return
 
-    onReorder([fixedStartId, ...arrayMove(movable, oldIndex, newIndex), fixedEndId])
+    onReorder([fixedStartId, ...arrayMove(movable, oldIndex, newIndex), ...tailIds])
   }
 
   return (

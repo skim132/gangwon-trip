@@ -39,6 +39,17 @@ GitHub 저장소가 Vercel과 연결되어 있다면 `git push` 후 자동으로
 
 - `src/data/day1.js`
 - `src/data/day2.js`
+- `src/data/day3.js`
+
+DAY 3 기본 일정 수정:
+
+```bash
+git add .
+git commit -m "DAY 3 일정 추가"
+git push
+```
+
+GitHub와 Vercel이 연결되어 있다면 push 후 자동으로 새 버전이 배포됩니다.
 
 장소 이름, 설명, 추천 순서, 기본 코스를 여기서 고칩니다.
 
@@ -60,3 +71,4 @@ GitHub 저장소가 Vercel과 연결되어 있다면 `git push` 후 자동으로
 - 개인 메모
 - 오늘 제외
 - 체력 코스 선택
+- 체크아웃 체크리스트

@@ -27,11 +27,13 @@ export function mapToCardItem(raw) {
     showPacking: Boolean(raw.showPacking),
     courseSteps: raw.courseSteps,
     packingItems: raw.packingItems,
+    packingTitle: raw.packingTitle,
     foodChoices: raw.foodChoices,
     foodKey: raw.foodKey,
     foodLabel: raw.foodLabel,
     courses: raw.courses,
     choiceKey: raw.choiceKey,
+    tripComplete: Boolean(raw.tripComplete),
   }
 }
 
@@ -107,7 +109,7 @@ export function normalizeDayOrder(dayId, order) {
     if (!seen.has(id)) middle.push(id)
   }
 
-  return [day.fixedStartId, ...middle, day.fixedEndId].filter(Boolean)
+  return [day.fixedStartId, ...middle, ...day.fixedTailIds].filter(Boolean)
 }
 
 export function getAlternativeOrder() {
@@ -133,12 +135,13 @@ export function createDayUserState(dayId) {
 
   const packing = {}
   const course = {}
-  const seonja = getItemsById(dayId).seonja
-  if (seonja?.packingItems) {
-    for (const pack of seonja.packingItems) packing[pack.id] = false
-  }
-  if (seonja?.courseSteps) {
-    for (const step of seonja.courseSteps) course[step.id] = false
+  for (const item of Object.values(getItemsById(dayId))) {
+    if (item.packingItems) {
+      for (const pack of item.packingItems) packing[pack.id] = false
+    }
+    if (item.courseSteps) {
+      for (const step of item.courseSteps) course[step.id] = false
+    }
   }
 
   const base = {
@@ -148,19 +151,30 @@ export function createDayUserState(dayId) {
     course,
   }
 
-  if (dayId !== 'day2') return base
+  if (dayId === 'day1') return base
+
+  const extra = {
+    ...base,
+    itemOrder: [...order],
+    lunchChoice: '',
+  }
+
+  if (dayId === 'day3') {
+    return {
+      ...extra,
+      tripComplete: false,
+    }
+  }
 
   const day2 = getDayModule('day2')
   const mureung = day2.items.find((item) => item.id === 'mureung')
   const deokbong = day2.items.find((item) => item.id === 'deokbong')
 
   return {
-    ...base,
-    itemOrder: [...order],
+    ...extra,
     mureungLevel: mureung?.courses?.defaultKey ?? 'light',
     deokbongLevel: deokbong?.courses?.defaultKey ?? 'summit',
     badaClosed: false,
-    lunchChoice: '',
     dinnerFood: '',
   }
 }
@@ -171,6 +185,7 @@ export function createDefaultUserState() {
     days: {
       day1: createDayUserState('day1'),
       day2: createDayUserState('day2'),
+      day3: createDayUserState('day3'),
     },
   }
 }

@@ -102,7 +102,7 @@ export default function ScheduleCard({
 
       {item.showPacking ? (
         <div className="subblock">
-          <p className="subblock-title">준비물</p>
+          <p className="subblock-title">{item.packingTitle ?? '준비물'}</p>
           <ul className="check-list packing-list">
             {packingItems.map((pack) => (
               <li key={pack.id}>

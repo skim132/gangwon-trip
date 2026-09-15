@@ -56,7 +56,8 @@ export default function DayView({
   const [editing, setEditing] = useState(false)
   const itemOrder = Array.isArray(dayState.itemOrder) ? dayState.itemOrder : day.itemOrder
   const doneCount = itemOrder.filter((id) => dayState.items[id]?.done).length
-  const isDay2 = day.id === 'day2'
+  const canReorder = Array.isArray(dayState.itemOrder)
+  const showExtras = day.id === 'day2' || day.id === 'day3'
 
   function renderCard(id) {
     const item = getDayItem(day.id, id, dayState)
@@ -72,7 +73,7 @@ export default function DayView({
         onTogglePacking={onTogglePacking}
         onToggleCourse={onToggleCourse}
         headerActions={
-          isDay2 && (item.canSkip || item.canClose || itemState.status === 'skipped') ? (
+          showExtras && (item.canSkip || item.canClose || itemState.status === 'skipped') ? (
             <Day2CardActions
               item={item}
               itemState={itemState}
@@ -84,7 +85,7 @@ export default function DayView({
           ) : null
         }
       >
-        {isDay2 ? (
+        {showExtras ? (
           <Day2CardBody
             item={item}
             dayState={dayState}
@@ -102,6 +103,7 @@ export default function DayView({
         <p className="eyebrow">{day.eyebrow}</p>
         <h1>강원 2박3일 여행</h1>
         {day.theme ? <p className="hero-theme">{day.theme}</p> : null}
+        {day.subtitle ? <p className="hero-subtitle">{day.subtitle}</p> : null}
         <p className="hero-date">{day.dateLabel}</p>
         <p className="hero-route">{day.route}</p>
       </header>
@@ -121,16 +123,27 @@ export default function DayView({
         </div>
       </section>
 
-      {isDay2 ? (
+      {day.notice ? (
+        <section className="day-notice">
+          <p>{day.notice}</p>
+        </section>
+      ) : null}
+
+      {canReorder ? (
         <>
-          <Day2OrderPreview itemOrder={itemOrder} items={dayState.items} />
-          <Day2EditBar editing={editing} onToggle={() => setEditing((value) => !value)} onReset={onResetDay2Order} />
+          <Day2OrderPreview dayId={day.id} itemOrder={itemOrder} items={dayState.items} />
+          <Day2EditBar
+            editing={editing}
+            onToggle={() => setEditing((value) => !value)}
+            onReset={onResetDay2Order}
+            resetLabel={day.id === 'day3' ? '추천 순서로 되돌리기' : '추천 일정으로 초기화'}
+          />
         </>
       ) : null}
 
       <section className="timeline">
         <h2 className="section-title">{day.sectionTitle}</h2>
-        {isDay2 ? (
+        {canReorder ? (
           <Day2Timeline
             itemOrder={itemOrder}
             editing={editing}
@@ -139,6 +152,7 @@ export default function DayView({
             movableIds={day.movableIds}
             fixedStartId={day.fixedStartId}
             fixedEndId={day.fixedEndId}
+            fixedTailIds={day.fixedTailIds}
           />
         ) : (
           itemOrder.map((id, index) => (
@@ -150,7 +164,9 @@ export default function DayView({
         )}
       </section>
 
-      {isDay2 ? <Day2TimeHint /> : null}
+      {canReorder ? (
+        <Day2TimeHint hints={day.timeHints} copy={day.timeHintCopy} />
+      ) : null}
     </>
   )
 }
